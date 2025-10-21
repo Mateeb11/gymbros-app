@@ -1,16 +1,31 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '../../store/store';
 import { logout } from '../../store/slices/authSlice';
+import { supabase } from '../../services/supabase';
 
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    dispatch(logout());
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      // Clear Redux state
+      dispatch(logout());
+      // Navigate to login page
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -42,9 +57,10 @@ const Header: React.FC = () => {
               </Link>
               <button
                 onClick={handleLogout}
+                disabled={isLoggingOut}
                 className="btn-primary"
               >
-                Logout
+                {isLoggingOut ? 'Logging out...' : 'Logout'}
               </button>
             </nav>
           )}
@@ -121,9 +137,10 @@ const Header: React.FC = () => {
                     handleLogout();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="block w-full text-left py-2 hover:text-accent transition-colors"
+                  disabled={isLoggingOut}
+                  className="block w-full text-left py-2 hover:text-accent transition-colors disabled:opacity-50"
                 >
-                  Logout
+                  {isLoggingOut ? 'Logging out...' : 'Logout'}
                 </button>
               </>
             ) : (
