@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from './store/store';
@@ -36,7 +36,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard', { replace: true });
     }
@@ -52,7 +52,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 function App() {
   const dispatch = useDispatch();
   const [initializing, setInitializing] = useState(true);
-  const isProcessingRef = React.useRef(false);
+  const isProcessingRef = useRef(false);
 
   useEffect(() => {
     // Set initializing to false immediately - we'll rely on the auth state listener
